@@ -226,7 +226,7 @@ for t in $TARGETS; do
     link_agents "$t"
     prune_orphans "$t" agents
   else
-    echo "  에이전트 심링크 — 건너뜀 ($t은 서브에이전트 미지원)"
+    echo "  에이전트 심링크 — 건너뜀 (${t}은 서브에이전트 미지원)"
   fi
 
   echo "  MCP 서버 등록"
