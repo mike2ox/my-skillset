@@ -85,4 +85,5 @@ jq '.hooks | keys' ~/.codex/hooks.json       # Stop (+ 기존 PreToolUse 보존)
 | `/my-refine [피드백]` | 기획 단계(plan/step) 피드백 반영 |
 | `/my-daily-log [메모]` | 오늘 대화 로그 분석 후 Obsidian 일지 초안 생성 |
 | `/my-memo [대화 내용]` | 대화 기반 웹 리서치 후 Obsidian 인사이트 메모 저장 |
+| `/my-domain-map [주제]` | 도메인 관계도를 조사 → 반증 → 작도 → 아티팩트 발행 (부재·불변식 주장만 검증) |
 | `/my-disk` | 맥 디스크 여유 공간 확인 및 정리 |

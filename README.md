@@ -98,6 +98,7 @@ SHRIMP_DATA_DIR=/경로 bash mcp-install.sh
 | `/my-disk` | 맥 디스크 여유 공간 확인 및 안전한 항목 정리 |
 | `/my-daily-log [추가 메모]` | 오늘 Claude Code 대화 로그를 분석하여 Obsidian 일지 초안 생성 |
 | `/my-memo [대화 내용]` | 팀원과 나눈 기술/프로젝트 대화를 기반으로 웹 리서치 후 Obsidian 인사이트 메모 생성. 일지의 Reference 섹션에서 wikilink로 연결 가능 |
+| `/my-domain-map [주제]` | 도메인 엔티티·데이터 흐름·화면 진입점의 관계도를 조사 → 반증 → 작도 → 아티팩트 발행. 부재·불변식 주장만 골라 검증하고, 그리기 전에 노드 목록을 확인받음 |
 | `/my-refine [피드백]` | 기획 단계(plan/step)에 대한 피드백 반영. `my-split` 결과물 수정 시 사용 |
 
 ## 표준 작업 플로우
@@ -136,6 +137,7 @@ docs/
 |------|-----------|
 | 전체 위임 — agent가 모든 작업 수행, 결과만 반환 | `my-retro`, `my-daily-log`, `my-memo` |
 | 부분 위임 — agent가 분석, 메인 세션이 수정 적용 | `my-check`, `my-review`, `my-debug` |
+| 조사·반증만 위임 — agent가 사실 수집과 반증, 메인 세션이 작도·발행 | `my-domain-map` |
 | 메인 세션 직접 실행 — 작업이 가볍거나 plan mode·사용자 대화 필요 | `my-init`, `my-interview`, `my-plan`, `my-split`, `my-iterate`, `my-commit`, `my-pr` |
 
 ## 구조
@@ -162,5 +164,6 @@ skills/
 ├── my-status/SKILL.md
 ├── my-disk/SKILL.md
 ├── my-daily-log/SKILL.md
-└── my-memo/SKILL.md
+├── my-memo/SKILL.md
+└── my-domain-map/SKILL.md
 ```
