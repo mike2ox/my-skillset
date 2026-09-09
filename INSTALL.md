@@ -28,9 +28,13 @@ bash install.sh --help
 | 항목 | Claude Code | OpenAI Codex |
 |------|-------------|--------------|
 | 스킬 | `~/.claude/skills` | `~/.codex/skills` |
+| 서브에이전트 | `~/.claude/agents` | **미지원** |
 | MCP 서버 | 4종 (`claude mcp add -s user`) | 4종 (`codex mcp add`) |
 | 알림음 훅 | `~/.claude/settings.json` — 3종 | `~/.codex/hooks.json` — **1종(Stop)** |
 | 세션 대화 로그 | `~/.claude/projects/<mangled>/*.jsonl` | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` |
+
+서브에이전트는 Claude Code 전용 기능이라 Codex에는 설치되지 않습니다. Codex에는 대응
+개념이 없으며, `install.sh`가 이를 감지해 해당 단계를 건너뛰고 그 사실을 출력합니다.
 
 스킬 포맷과 MCP 핀 버전은 동일합니다. 설치 결과의 차이는 훅뿐이며, Codex의 훅 이벤트
 집합에 `Notification`과 `StopFailure`가 없기 때문입니다. Codex 지원 이벤트: `PreToolUse`,
@@ -129,7 +133,7 @@ skills를 로드하려면 해당 제품(Claude Code / Codex)을 재시작하세�
 ### 깨진 링크가 없어야 합니다
 
 ```bash
-for l in ~/.claude/skills/* ~/.codex/skills/*; do
+for l in ~/.claude/skills/* ~/.codex/skills/* ~/.claude/agents/*; do
   [ -L "$l" ] && { [ -e "$l" ] || echo "BROKEN $l"; }
 done
 ```
@@ -141,6 +145,7 @@ done
 ```bash
 diff <(ls skills/) <(ls ~/.claude/skills/ | grep -E "^(my-|goal-maker$)") && echo "claude 일치"
 diff <(ls skills/) <(ls ~/.codex/skills/  | grep -E "^(my-|goal-maker$)") && echo "codex 일치"
+diff <(ls agents/) <(ls ~/.claude/agents/) && echo "agents 일치"
 ```
 
 목록을 이 문서에 복제해 두지 않습니다 — 스킬이 추가·삭제될 때마다 어긋나기 때문입니다.

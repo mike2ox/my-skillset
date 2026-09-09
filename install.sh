@@ -22,10 +22,11 @@ usage() {
   -h, --help                   이 도움말
 
 타깃별 설치 범위:
-  claude  ~/.claude/skills · MCP 4종 · 알림음 훅 3종(Stop/Notification/StopFailure)
+  claude  ~/.claude/skills · ~/.claude/agents · MCP 4종 · 알림음 훅 3종(Stop/Notification/StopFailure)
   codex   ~/.codex/skills  · MCP 4종 · 알림음 훅 1종(Stop)
 
   Codex에는 Notification·StopFailure 훅 이벤트가 없어 Stop만 설치된다.
+  서브에이전트는 Claude Code 전용이라 Codex에는 설치되지 않는다.
 USAGE
 }
 
@@ -61,6 +62,15 @@ target_skills_dir() {
   case "$1" in
     claude) echo "${CLAUDE_SKILLS_DIR:-$(target_home claude)/skills}" ;;
     codex)  echo "${CODEX_SKILLS_DIR:-$(target_home codex)/skills}" ;;
+  esac
+}
+
+# 서브에이전트는 Claude Code 전용 기능이다. Codex에는 대응 개념이 없으므로
+# 빈 문자열을 돌려주고, 호출부가 이를 보고 건너뛴다.
+target_agents_dir() {
+  case "$1" in
+    claude) echo "${CLAUDE_AGENTS_DIR:-$(target_home claude)/agents}" ;;
+    codex)  echo "" ;;
   esac
 }
 
@@ -109,19 +119,53 @@ link_skills() {
   done
 }
 
+# 에이전트는 디렉토리가 아니라 .md 파일 하나가 단위다. 그래서 link_skills와
+# 합치지 않고 따로 둔다 — 존재 검사(-d vs -f)와 순회 대상이 다르다.
+link_agents() {
+  local target="$1" dir
+  dir="$(target_agents_dir "$target")"
+  [ -n "$dir" ] || return 0
+  [ -d "$REPO_DIR/agents" ] || return 0
+  mkdir -p "$dir"
+
+  local f name src link current
+  for f in "$REPO_DIR/agents"/*.md; do
+    [ -e "$f" ] || continue
+    name="$(basename "$f")"
+    src="$f"
+    link="$dir/$name"
+
+    if [ -L "$link" ]; then
+      current="$(link_target_of "$link")"
+      if [ "$current" = "$src" ] && [ -e "$link" ]; then
+        echo "    ↺ $name"
+      else
+        rm -f "$link"
+        ln -s "$src" "$link"
+        echo "    ⟳ $name (재연결: ${current:-?} → $src)"
+      fi
+    elif [ -e "$link" ]; then
+      echo "    ⚠ $name (실제 파일 — 교체하려면 수동 제거 필요)"
+    else
+      ln -s "$src" "$link"
+      echo "    ✓ $name"
+    fi
+  done
+}
+
 # 이 저장소가 소유한 링크인지 판정한다. 현재 경로뿐 아니라 옛 저장소 이름도
 # 인정해야 rename 이후 남은 링크를 정리할 수 있다. 다른 프로젝트가 건 링크는
 # 여기서 걸러져 절대 삭제 대상이 되지 않는다.
 OWNED_REPO_NAMES="my-skillset my-claude-code-config"
 
 is_owned_link() {
-  local current="$1" name="$2" parent repo known
+  local current="$1" name="$2" kind="${3:-skills}" parent repo known
   case "$current" in
-    */skills/"$name") ;;
+    */"$kind"/"$name") ;;
     *) return 1 ;;
   esac
-  parent="${current%/skills/$name}"
-  [ "$parent/skills/$name" = "$REPO_DIR/skills/$name" ] && return 0
+  parent="${current%/$kind/$name}"
+  [ "$parent/$kind/$name" = "$REPO_DIR/$kind/$name" ] && return 0
   repo="$(basename "$parent")"
   for known in $OWNED_REPO_NAMES; do
     [ "$repo" = "$known" ] && return 0
@@ -132,16 +176,19 @@ is_owned_link() {
 # 저장소에 대응 스킬이 없는데 남아 있는 링크를 고아로 본다.
 # 실제 디렉토리(.system 등)와 다른 프로젝트를 가리키는 링크는 건드리지 않는다.
 prune_orphans() {
-  local target="$1" dir link name current found=0
-  dir="$(target_skills_dir "$target")"
-  [ -d "$dir" ] || return 0
+  local target="$1" kind="${2:-skills}" dir link name current found=0
+  case "$kind" in
+    skills) dir="$(target_skills_dir "$target")" ;;
+    agents) dir="$(target_agents_dir "$target")" ;;
+  esac
+  [ -n "$dir" ] && [ -d "$dir" ] || return 0
 
   for link in "$dir"/*; do
     [ -L "$link" ] || continue
     name="$(basename "$link")"
     current="$(link_target_of "$link")"
-    is_owned_link "$current" "$name" || continue
-    [ -d "$REPO_DIR/skills/$name" ] && continue
+    is_owned_link "$current" "$name" "$kind" || continue
+    [ -e "$REPO_DIR/$kind/$name" ] && continue
 
     found=1
     if [ "$PRUNE" = "1" ]; then
@@ -172,6 +219,15 @@ for t in $TARGETS; do
   echo "  스킬 심링크 → $(target_skills_dir "$t")"
   link_skills "$t"
   prune_orphans "$t"
+
+  agents_dir="$(target_agents_dir "$t")"
+  if [ -n "$agents_dir" ]; then
+    echo "  에이전트 심링크 → $agents_dir"
+    link_agents "$t"
+    prune_orphans "$t" agents
+  else
+    echo "  에이전트 심링크 — 건너뜀 ($t은 서브에이전트 미지원)"
+  fi
 
   echo "  MCP 서버 등록"
   if target_cli "$t"; then

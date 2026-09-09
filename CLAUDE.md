@@ -24,8 +24,9 @@ bash install.sh              # Claude Code + Codex 양쪽
 bash install.sh --target codex   # 한쪽만
 ```
 
-스크립트가 하는 일: 타깃별 skills 디렉토리 생성 → 심링크 연결(깨졌거나 옛 경로를 가리키는
-링크는 자동 재연결) → MCP 4종 등록 → 알림음 훅 병합. 전부 멱등이라 재실행해도 안전합니다.
+스크립트가 하는 일: 타깃별 skills 디렉토리 생성 → 스킬 심링크 연결 → **에이전트 심링크
+연결(Claude 타깃만)** → MCP 4종 등록 → 알림음 훅 병합. 깨졌거나 옛 경로를 가리키는 링크는
+자동 재연결되고, 전부 멱등이라 재실행해도 안전합니다.
 
 **Step 2** — 고아 심링크가 보고되면 사용자에게 목록을 보여주고 확인을 받으세요.
 
@@ -44,6 +45,7 @@ done
 
 diff <(ls skills/) <(ls ~/.claude/skills/ | grep -E "^(my-|goal-maker$)") && echo "claude 일치"
 diff <(ls skills/) <(ls ~/.codex/skills/  | grep -E "^(my-|goal-maker$)") && echo "codex 일치"
+diff <(ls agents/) <(ls ~/.claude/agents/) && echo "agents 일치"
 
 jq '.hooks | keys' ~/.claude/settings.json   # Stop, Notification, StopFailure
 jq '.hooks | keys' ~/.codex/hooks.json       # Stop (+ 기존 PreToolUse 보존)
@@ -60,6 +62,8 @@ jq '.hooks | keys' ~/.codex/hooks.json       # Stop (+ 기존 PreToolUse 보존)
 - **shrimp `DATA_DIR`은 Claude와 Codex가 같은 값을 써야 합니다**(기본
   `/Volumes/860QVO/.shrimp-data`). 갈라지면 태스크 목록이 둘로 나뉩니다. 볼륨이 없으면
   `mcp-install.sh`가 빈 디렉토리를 만들지 않고 중단합니다.
+- **서브에이전트는 Claude Code에만 설치됩니다.** Codex에는 대응 개념이 없어 스크립트가
+  해당 단계를 건너뜁니다. 이것은 버그가 아니라 제품 제약입니다.
 - **워크트리에서 `install.sh`를 실행하지 마세요.** 심링크가 워크트리 경로를 가리키게 되어
   워크트리를 제거하면 전부 깨집니다. 항상 메인 체크아웃에서 실행하세요.
 

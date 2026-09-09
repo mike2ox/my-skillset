@@ -101,6 +101,25 @@ SHRIMP_DATA_DIR=/경로 bash mcp-install.sh
 | `/my-domain-map [주제]` | 도메인 엔티티·데이터 흐름·화면 진입점의 관계도를 조사 → 반증 → 작도 → 아티팩트 발행. 부재·불변식 주장만 골라 검증하고, 그리기 전에 노드 목록을 확인받음 |
 | `/my-refine [피드백]` | 기획 단계(plan/step)에 대한 피드백 반영. `my-split` 결과물 수정 시 사용 |
 
+## 서브에이전트
+
+Claude Code 전용입니다. `agents/*.md`가 `~/.claude/agents/`로 심링크됩니다.
+Codex에는 대응 개념이 없어 설치되지 않습니다.
+
+| 에이전트 | 역할 |
+|---------|------|
+| `repo-cartographer` | 리포에서 엔티티·쿼리·진입점 관계를 조사해 구조화된 지도로 반환 (읽기 전용) |
+| `claim-falsifier` | 부재 주장("X가 없다")과 불변식 주장을 **반증** 시도. 확인이 아니라 깨는 것이 목표 |
+| `diagram-author` | 확정된 사실로 인라인 SVG 도면 HTML을 작성하고 경로만 반환. 조사하지 않음 |
+| `work-doc-author` | 남에게 넘기는 업무 문서 작성 — 팀 공유 설명·핸드오프·장애 보고·PRD. 조사하지 않음 |
+
+뒤의 셋은 공통 계약이 있습니다: **조사하지 않고, 확정된 사실만 받아서 만든다.**
+조사까지 맡기면 산출물이 그럴듯하게 틀리기 때문입니다. 조사는 `repo-cartographer`가,
+검증은 `claim-falsifier`가 맡습니다.
+
+`work-doc-author`와 `/my-plan`의 경계: `/my-plan`은 **내가 결정하려고** 쓰는 글,
+`work-doc-author`는 **결정이 끝난 뒤 남에게 알리려고** 쓰는 글입니다.
+
 ## 표준 작업 플로우
 
 ```
@@ -146,6 +165,12 @@ docs/
 settings/
 ├── notification-sounds.json   ← 알림음 훅 정의
 └── install-sounds.sh          ← settings.json의 hooks에 병합/제거
+
+agents/                        ← Claude Code 전용, ~/.claude/agents/로 심링크
+├── repo-cartographer.md
+├── claim-falsifier.md
+├── diagram-author.md
+└── work-doc-author.md
 
 skills/
 ├── goal-maker/SKILL.md
