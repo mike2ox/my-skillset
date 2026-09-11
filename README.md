@@ -112,10 +112,20 @@ Codex에는 대응 개념이 없어 설치되지 않습니다.
 | `claim-falsifier` | 부재 주장("X가 없다")과 불변식 주장을 **반증** 시도. 확인이 아니라 깨는 것이 목표 |
 | `diagram-author` | 확정된 사실로 인라인 SVG 도면 HTML을 작성하고 경로만 반환. 조사하지 않음 |
 | `work-doc-author` | 남에게 넘기는 업무 문서 작성 — 팀 공유 설명·핸드오프·장애 보고·PRD. 조사하지 않음 |
+| `dev-middle` | 확정된 명세를 이행. 설계하지 않고, 판단이 필요하면 멈추고 보고 (편집 가능) |
+| `dev-senior` | 남이 쓴 변경을 검토해 승인/반려만 판정. **고치지 않음** (읽기 전용) |
 
-뒤의 셋은 공통 계약이 있습니다: **조사하지 않고, 확정된 사실만 받아서 만든다.**
+`repo-cartographer` 다음 셋은 공통 계약이 있습니다: **조사하지 않고, 확정된 사실만 받아서 만든다.**
 조사까지 맡기면 산출물이 그럴듯하게 틀리기 때문입니다. 조사는 `repo-cartographer`가,
 검증은 `claim-falsifier`가 맡습니다.
+
+`dev-middle`·`dev-senior`는 **maker-checker** 쌍입니다 — 만든 쪽이 자기 것을 인증하지 않습니다.
+모델을 일부러 다르게 뒀고(sonnet/opus), 검토자는 `permissionMode: plan` + 편집 도구 제외로
+**구조적으로** 고칠 수 없습니다. LLM이 자기 출력에 더 후한 점수를 준다는 보고가 있어,
+격리만으로는 부족하고 모델까지 갈라야 편향이 줄기 때문입니다.
+
+복수 검토는 **독립 → 상호 반박 → 재판정** 순서를 씁니다. 반박 없이 병렬 결과를 합치면
+아무도 남의 판정을 시험하지 않아 점수가 부풀려집니다.
 
 `work-doc-author`와 `/my-plan`의 경계: `/my-plan`은 **내가 결정하려고** 쓰는 글,
 `work-doc-author`는 **결정이 끝난 뒤 남에게 알리려고** 쓰는 글입니다.
@@ -170,7 +180,9 @@ agents/                        ← Claude Code 전용, ~/.claude/agents/로 심�
 ├── repo-cartographer.md
 ├── claim-falsifier.md
 ├── diagram-author.md
-└── work-doc-author.md
+├── work-doc-author.md
+├── dev-middle.md
+└── dev-senior.md
 
 skills/
 ├── goal-maker/SKILL.md
