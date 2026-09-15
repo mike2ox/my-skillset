@@ -85,6 +85,7 @@ SHRIMP_DATA_DIR=/경로 bash mcp-install.sh
 | `/goal-maker [목표 또는 초안]` | Claude Code/Codex 내장 `/goal` 대상을 자동 판별해 목표글 작성 또는 기존 글의 적합성 판정 |
 | `/my-init [update]` | 현재 프로젝트 CLAUDE.md에 표준 워크플로우 섹션 추가. `update` 인자 시 CLAUDE.md와 README.md를 최신 버전으로 교체 |
 | `/my-interview [만들 것]` | 요청이 모호할 때 한 번에 한 질문씩 던져 진짜 의도·성공 기준·제약을 확정 → `/my-plan` 입력으로 인계 |
+| `/my-judgment [작업]` | 문제 정의·원인 진단·설계 선택을 AI가 대신 하지 않도록 착수 게이트 → 선택지 제시 → 검증 재료 제공 순으로 대화를 구조화. plan 모드 진입이나 개발 작업 시작 시 **자동 발동**하며, 마무리 시 판단 로그를 `/my-retro`에 넘김 |
 | `/my-plan [기능명]` | 가정 명시 후 기능 아이디어와 설계 방향 정리 (plan 모드) → `docs/plan/` 저장 |
 | `/my-split [auto]` | git branch 생성·전환 후 plan → 주니어 친화적 step별 작업 분해 (수직 슬라이싱·크기 기준). 기본값은 step 완료마다 사용자 확인 대기, `auto` 인자 시 자동 진행 |
 | `/my-commit` | 원자성 점검 후 Claude attribution 없는 커밋 작성 |
@@ -137,6 +138,9 @@ Codex에는 대응 개념이 없어 설치되지 않습니다.
    (요청 모호할 때)              ↓              ↓                                    ↓
                             /my-refine     /my-debug          /my-retro ← /my-iterate ← /my-review
                             (step 수정)    (실패 시)
+
+└─ /my-judgment ─────────────── 위 전 구간에 걸쳐 자동 적용 ───────────────┘
+   (착수 게이트 · 선택지 제시 · 검증 재료 → 마무리 시 /my-retro로 인계)
 ```
 
 학습·인사이트 메모는 독립적으로 사용합니다:
@@ -167,7 +171,7 @@ docs/
 | 전체 위임 — agent가 모든 작업 수행, 결과만 반환 | `my-retro`, `my-daily-log`, `my-memo` |
 | 부분 위임 — agent가 분석, 메인 세션이 수정 적용 | `my-check`, `my-review`, `my-debug` |
 | 조사·반증만 위임 — agent가 사실 수집과 반증, 메인 세션이 작도·발행 | `my-domain-map` |
-| 메인 세션 직접 실행 — 작업이 가볍거나 plan mode·사용자 대화 필요 | `my-init`, `my-interview`, `my-plan`, `my-split`, `my-iterate`, `my-commit`, `my-pr` |
+| 메인 세션 직접 실행 — 작업이 가볍거나 plan mode·사용자 대화 필요 | `my-init`, `my-interview`, `my-judgment`, `my-plan`, `my-split`, `my-iterate`, `my-commit`, `my-pr` |
 
 ## 구조
 
@@ -188,6 +192,7 @@ skills/
 ├── goal-maker/SKILL.md
 ├── my-init/SKILL.md
 ├── my-interview/SKILL.md
+├── my-judgment/SKILL.md
 ├── my-plan/SKILL.md
 ├── my-split/SKILL.md
 ├── my-commit/SKILL.md

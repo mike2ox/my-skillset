@@ -76,6 +76,7 @@ jq '.hooks | keys' ~/.codex/hooks.json       # Stop (+ 기존 PreToolUse 보존)
 | `/goal-maker [목표 또는 초안]` | Claude Code/Codex 내장 `/goal` 대상을 자동 판별해 목표글 작성 또는 기존 글의 적합성 판정 |
 | `/my-init [update]` | 현재 프로젝트 CLAUDE.md에 표준 워크플로우 섹션 추가 |
 | `/my-interview [만들 것]` | 요청이 모호할 때 한 질문씩 던져 의도·성공 기준·제약 확정 |
+| `/my-judgment [작업]` | 개발 작업의 문제 정의·원인 진단·판단을 사용자가 하도록 대화 구조화 (plan 모드·개발 작업 시작 시 자동 발동) |
 | `/my-plan [기능명]` | 가정 명시 후 설계 방향·리스크 정리 → `docs/plan/` 저장 |
 | `/my-split [auto]` | plan → 수직 슬라이스 단위 step별 작업 분해 |
 | `/my-commit` | 원자성 점검 후 Claude attribution 없는 커밋 |
