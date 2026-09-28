@@ -2,13 +2,22 @@
 name: my-review
 description: 코드 리뷰 피드백을 받아 개선사항을 분류하고 순서대로 적용합니다.
 disable-model-invocation: true
-argument-hint: [리뷰 내용]
-allowed-tools: Agent Read(*) Edit(*) Write(docs/review/*) Bash(npx tsc *) Bash(pnpm tsc *) Bash(git branch *) Bash(mkdir *)
+argument-hint: [--output <파일-경로>] [리뷰 내용]
+allowed-tools: Agent Read(*) Edit(*) Write(*) Bash(npx tsc *) Bash(pnpm tsc *) Bash(git branch *) Bash(mkdir *) AskUserQuestion
 ---
 
 코드 리뷰 피드백을 분석하고 개선사항을 적용합니다.
 
-리뷰 내용: $ARGUMENTS
+`$ARGUMENTS` 맨 앞의 선택적 `--output <파일-경로>`를 먼저 처리하고 제거한 나머지를 `REVIEW_CONTENT`로 사용합니다. 공백이 있는 경로는 인용합니다.
+
+## 출력 경로 옵션
+
+- `--output`은 **파일 경로**만 받습니다. 상대 경로는 현재 프로젝트 디렉터리 기준으로 해석하며, 디렉터리만 넘기면 올바른 파일 경로를 AskUserQuestion으로 다시 받습니다.
+- `--output`이 있으면 3단계의 피드백 요약을 그 정확한 경로에 저장합니다. 상위 디렉터리가 없으면 임의로 만들지 말고, 생성 / 다른 경로 지정 / 저장 취소 중 하나를 AskUserQuestion으로 묻습니다.
+- 지정한 파일이 이미 있으면 자동으로 덮어쓰지 말고, 덮어쓰기 / 다른 파일 경로 / 저장 취소 중 하나를 AskUserQuestion으로 묻습니다.
+- `--output`이 없을 때는 아래의 기존 `docs/review/` 기본 저장 규칙과 파일명 규칙을 그대로 적용합니다.
+
+리뷰 내용: `$REVIEW_CONTENT`
 
 ## 1단계: 피드백 분류 분석 (Agent 위임)
 
@@ -20,7 +29,7 @@ subagent_type을 code-reviewer로 지정하여 Agent tool을 호출하세요. �
 아래 코드 리뷰 피드백을 분석하여 수정 항목을 분류하고 영향 범위를 파악합니다.
 
 리뷰 내용:
-$ARGUMENTS
+$REVIEW_CONTENT
 
 수행할 작업:
 1. 관련 파일을 읽어 현재 코드 상태를 파악합니다
@@ -60,15 +69,15 @@ $ARGUMENTS
 
 ## 3단계: 피드백 요약 저장
 
-수정 완료 후 `docs/review/YYYY-MM-DD-{브랜치명}.md` 파일을 생성합니다.
-`docs/review/` 디렉토리가 없으면 먼저 생성합니다.
+수정 완료 후 `--output`이 있으면 위에서 확정한 파일 경로에 피드백 요약을 생성합니다. 없으면 `docs/review/YYYY-MM-DD-{브랜치명}.md` 파일을 생성합니다.
+기본 저장일 때만 `docs/review/` 디렉토리가 없으면 먼저 생성합니다.
 
 파일 형식:
 ```markdown
 # 코드 리뷰 피드백 — {브랜치명} ({날짜})
 
 ## 원본 피드백
-{$ARGUMENTS 전체}
+{$REVIEW_CONTENT 전체}
 
 ## 분류 결과
 
