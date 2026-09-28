@@ -2,11 +2,18 @@
 name: my-plan
 description: 새 기능의 아이디어와 설계 방향을 plan 모드로 정리합니다. 기능 기획을 시작할 때 사용하세요.
 disable-model-invocation: true
-argument-hint: [기능 설명]
-allowed-tools: Write(*) Bash(mkdir *) Read(*)
+argument-hint: [--output <파일-경로>] [기능 설명]
+allowed-tools: Write(*) Bash(mkdir *) Read(*) AskUserQuestion
 ---
 
-$ARGUMENTS 기능을 계획합니다.
+`$ARGUMENTS` 맨 앞의 선택적 `--output <파일-경로>`를 먼저 처리하고 제거한 나머지 기능을 계획합니다. 공백이 있는 경로는 인용합니다.
+
+## 출력 경로 옵션
+
+- `--output`은 **파일 경로**만 받습니다. 상대 경로는 현재 프로젝트 디렉터리 기준으로 해석하며, 디렉터리만 넘기면 올바른 파일 경로를 AskUserQuestion으로 다시 받습니다.
+- `--output`이 있으면 승인된 plan은 그 정확한 경로에 저장합니다. 상위 디렉터리가 없으면 임의로 만들지 말고, 생성 / 다른 경로 지정 / 저장 취소 중 하나를 AskUserQuestion으로 묻습니다.
+- 지정한 파일이 이미 있으면 자동으로 덮어쓰지 말고, 덮어쓰기 / 다른 파일 경로 / 저장 취소 중 하나를 AskUserQuestion으로 묻습니다.
+- `--output`이 없을 때는 아래의 기존 `docs/plan/` 기본 저장 규칙과 파일명 규칙을 그대로 적용합니다.
 
 plan 모드를 사용하여 아래 구조로 설계 방향을 정리하고, 승인 후 구현을 시작합니다.
 
@@ -78,6 +85,6 @@ plan을 제시하기 전 아래를 확인합니다:
 
 ## plan 승인 후
 
-승인된 plan 내용을 `docs/plan/YYYY-MM-DD-{기능명}.md` 파일로 저장합니다.
-`docs/plan/` 디렉토리가 없으면 먼저 생성합니다.
+`--output`이 있으면 위에서 확정한 파일 경로에 승인된 plan 내용을 저장합니다. 없으면 `docs/plan/YYYY-MM-DD-{기능명}.md` 파일로 저장합니다.
+기본 저장일 때만 `docs/plan/` 디렉토리가 없으면 먼저 생성합니다.
 저장 완료 후 `/my-split`으로 작업을 분해할 수 있음을 알립니다.
