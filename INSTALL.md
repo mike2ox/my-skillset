@@ -29,7 +29,7 @@ bash install.sh --help
 |------|-------------|--------------|
 | 스킬 | `~/.claude/skills` | `~/.codex/skills` |
 | 서브에이전트 | `~/.claude/agents` | **미지원** |
-| MCP 서버 | 4종 (`claude mcp add -s user`) | 4종 (`codex mcp add`) |
+| MCP 서버 | 2종 (`claude mcp add -s user`) | 2종 (`codex mcp add`) |
 | 알림음 훅 | `~/.claude/settings.json` — 3종 | `~/.codex/hooks.json` — **1종(Stop)** |
 | 세션 대화 로그 | `~/.claude/projects/<mangled>/*.jsonl` | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` |
 
@@ -80,7 +80,7 @@ bash install.sh --target claude   # 또는 codex
 
 ### 3. MCP 서버 등록
 
-핀 고정된 4종(context7, sequential-thinking, shrimp-task-manager, serena)을
+핀 고정된 2종(context7, shrimp-task-manager)을
 양쪽 타깃에 동일 버전으로 등록합니다.
 
 ```bash

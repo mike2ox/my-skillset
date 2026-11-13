@@ -5,14 +5,13 @@
 #   bash mcp-install.sh --target codex   Codex에만 등록
 #
 # 재실행 안전: 이미 등록된 서버는 건너뛴다.
+# sequential-thinking·serena는 2026-11 제외 — 최신 모델의 내장 추론·코드 탐색과 겹쳐 토큰만 늘린다.
 # 버전은 의도적으로 고정(pin)한다. 업데이트는 아래 PIN 값을 bump + commit 후 재실행.
 set -euo pipefail
 
 # ---- pinned versions (검증된 버전) ----
 CONTEXT7_VER="3.2.5"
-SEQTHINK_VER="2026.7.4"
 SHRIMP_VER="1.0.21"
-SERENA_REF="v1.6.1"                       # git 태그(브랜치 HEAD 금지)
 
 # shrimp 태스크 데이터는 외장 볼륨에 둔다. Claude·Codex가 같은 DATA_DIR을
 # 공유해야 태스크 목록이 갈라지지 않는다.
@@ -86,11 +85,7 @@ add() {
 register_all() {
   local t="$1"
   add "$t" context7            -- npx -y "@upstash/context7-mcp@${CONTEXT7_VER}"
-  add "$t" sequential-thinking -- npx -y "@modelcontextprotocol/server-sequential-thinking@${SEQTHINK_VER}"
   add "$t" shrimp-task-manager "DATA_DIR=${SHRIMP_DATA_DIR}" -- npx -y "mcp-shrimp-task-manager@${SHRIMP_VER}"
-  # Serena: --project-from-cwd 로 세션마다 현재 프로젝트에 자동 바인딩(worktree 안전, v1.6.0+)
-  add "$t" serena -- uvx --from "git+https://github.com/oraios/serena@${SERENA_REF}" \
-                    serena start-mcp-server --context claude-code --project-from-cwd
 }
 
 for t in $TARGETS; do

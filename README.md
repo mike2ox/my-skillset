@@ -23,7 +23,7 @@ bash install.sh --prune            # 저장소에서 사라진 고아 심링크�
 | 항목 | Claude Code | OpenAI Codex |
 |------|-------------|--------------|
 | 스킬 | `~/.claude/skills` | `~/.codex/skills` |
-| MCP 서버 | 4종 (`claude mcp add -s user`) | 4종 (`codex mcp add`) |
+| MCP 서버 | 2종 (`claude mcp add -s user`) | 2종 (`codex mcp add`) |
 | 알림음 훅 | `~/.claude/settings.json` — 3종 | `~/.codex/hooks.json` — **1종(Stop)** |
 
 스킬 포맷과 MCP 핀 버전은 양쪽이 동일합니다. **차이는 훅뿐입니다** — Codex의 훅 이벤트
@@ -62,7 +62,7 @@ bash settings/install-codex-hooks.sh --uninstall   # Codex 제거
 
 ## MCP 서버
 
-`mcp-install.sh`가 핀 고정된 4종(context7, sequential-thinking, shrimp-task-manager, serena)을
+`mcp-install.sh`가 핀 고정된 2종(context7, shrimp-task-manager)을
 양쪽 타깃에 동일 버전으로 등록합니다.
 
 ```bash
