@@ -1,0 +1,3 @@
+2026-11-13 deprecated
+사유: 존재하지 않는 subagent_type 'code-reviewer'를 호출한다(이 저장소 agents/에도 없음). Codex에는 Agent 도구가 없다. 리뷰는 내장 기능이 더 잘한다.
+대체: Claude /code-review · /simplify · /security-review, Codex /review, 검토 분리가 필요하면 dev-senior 에이전트

@@ -27,6 +27,7 @@ usage() {
 
   Codex에는 Notification·StopFailure 훅 이벤트가 없어 Stop만 설치된다.
   서브에이전트는 Claude Code 전용이라 Codex에는 설치되지 않는다.
+  skills/<name>/DEPRECATED 파일이 있는 스킬은 설치하지 않고, 이미 걸린 링크는 고아로 보고한다.
 USAGE
 }
 
@@ -90,6 +91,10 @@ link_target_of() {
   echo "${raw%/}"
 }
 
+# 스킬 디렉토리에 DEPRECATED 파일이 있으면 설치 대상에서 뺀다. 삭제하지 않고
+# 남겨 두는 이유와 대체 수단은 그 파일에 적는다. 되살리려면 파일만 지우면 된다.
+is_deprecated() { [ -e "$REPO_DIR/skills/$1/DEPRECATED" ]; }
+
 link_skills() {
   local target="$1" dir
   dir="$(target_skills_dir "$target")"
@@ -100,6 +105,11 @@ link_skills() {
     name="$(basename "$skill_dir")"
     src="${skill_dir%/}"
     link="$dir/$name"
+
+    if is_deprecated "$name"; then
+      echo "    ⊘ $name (deprecated — 건너뜀)"
+      continue
+    fi
 
     if [ -L "$link" ]; then
       current="$(link_target_of "$link")"
@@ -173,10 +183,10 @@ is_owned_link() {
   return 1
 }
 
-# 저장소에 대응 스킬이 없는데 남아 있는 링크를 고아로 본다.
+# 저장소에 대응 스킬이 없거나 deprecated된 스킬인데 남아 있는 링크를 고아로 본다.
 # 실제 디렉토리(.system 등)와 다른 프로젝트를 가리키는 링크는 건드리지 않는다.
 prune_orphans() {
-  local target="$1" kind="${2:-skills}" dir link name current found=0
+  local target="$1" kind="${2:-skills}" dir link name current reason found=0
   case "$kind" in
     skills) dir="$(target_skills_dir "$target")" ;;
     agents) dir="$(target_agents_dir "$target")" ;;
@@ -188,14 +198,20 @@ prune_orphans() {
     name="$(basename "$link")"
     current="$(link_target_of "$link")"
     is_owned_link "$current" "$name" "$kind" || continue
-    [ -e "$REPO_DIR/$kind/$name" ] && continue
+    if [ "$kind" = "skills" ] && is_deprecated "$name"; then
+      reason="deprecated"
+    elif [ -e "$REPO_DIR/$kind/$name" ]; then
+      continue
+    else
+      reason="고아"
+    fi
 
     found=1
     if [ "$PRUNE" = "1" ]; then
       rm -f "$link"
-      echo "    ✗ $name 삭제됨 (was: $current)"
+      echo "    ✗ $name 삭제됨 ($reason — was: $current)"
     else
-      echo "    ! $name (고아 — was: $current)"
+      echo "    ! $name ($reason — was: $current)"
     fi
   done
 
@@ -249,7 +265,10 @@ done
 echo ""
 echo "완료. 적용하려면 해당 제품을 재시작하세요."
 printf "커맨드: "
-ls "$REPO_DIR/skills" | sed 's|^|/|' | tr '\n' ',' | sed 's/,$//; s/,/, /g'
+for d in "$REPO_DIR/skills"/*/; do
+  n="$(basename "$d")"
+  is_deprecated "$n" || echo "$n"
+done | sed 's|^|/|' | tr '\n' ',' | sed 's/,$//; s/,/, /g'
 echo ""
 case "$TARGETS" in
   *codex*) echo "참고: Codex에는 Stop 알림음만 설치됩니다 (Notification·StopFailure 이벤트 미지원)." ;;

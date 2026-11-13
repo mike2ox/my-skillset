@@ -30,7 +30,7 @@ bash install.sh --target codex   # 한쪽만
 
 **Step 2** — 고아 심링크가 보고되면 사용자에게 목록을 보여주고 확인을 받으세요.
 
-저장소에서 사라진 스킬의 링크는 기본적으로 **목록만 출력하고 삭제하지 않습니다.**
+저장소에서 사라졌거나 deprecated된 스킬의 링크는 기본적으로 **목록만 출력하고 삭제하지 않습니다.**
 사용자가 동의하면 그때 `bash install.sh --prune`을 실행하세요. 확인 없이 삭제하지 않습니다.
 
 **Step 3** — 완료 후 해당 제품(Claude Code / Codex) 재시작을 안내하세요.
@@ -43,8 +43,10 @@ for l in ~/.claude/skills/* ~/.codex/skills/*; do
   [ -L "$l" ] && { [ -e "$l" ] || echo "BROKEN $l"; }
 done
 
-diff <(ls skills/) <(ls ~/.claude/skills/ | grep -E "^(my-|goal-maker$)") && echo "claude 일치"
-diff <(ls skills/) <(ls ~/.codex/skills/  | grep -E "^(my-|goal-maker$)") && echo "codex 일치"
+# deprecated(skills/<name>/DEPRECATED 있음)를 뺀 목록과 비교
+active() { for d in skills/*/; do [ -e "$d/DEPRECATED" ] || basename "$d"; done; }
+diff <(active) <(ls ~/.claude/skills/ | grep -E "^(my-|goal-maker$)") && echo "claude 일치"
+diff <(active) <(ls ~/.codex/skills/  | grep -E "^(my-|goal-maker$)") && echo "codex 일치"
 diff <(ls agents/) <(ls ~/.claude/agents/) && echo "agents 일치"
 
 jq '.hooks | keys' ~/.claude/settings.json   # Stop, Notification, StopFailure
@@ -74,21 +76,22 @@ jq '.hooks | keys' ~/.codex/hooks.json       # Stop (+ 기존 PreToolUse 보존)
 | 커맨드 | 설명 |
 |--------|------|
 | `/goal-maker [목표 또는 초안]` | Claude Code/Codex 내장 `/goal` 대상을 자동 판별해 목표글 작성 또는 기존 글의 적합성 판정 |
-| `/my-init [update]` | 현재 프로젝트 CLAUDE.md에 표준 워크플로우 섹션 추가 |
-| `/my-interview [만들 것]` | 요청이 모호할 때 한 질문씩 던져 의도·성공 기준·제약 확정 |
 | `/my-judgment [작업]` | 개발 작업의 문제 정의·원인 진단·판단을 사용자가 하도록 대화 구조화 (plan 모드·개발 작업 시작 시 자동 발동) |
-| `/my-plan [기능명]` | 가정 명시 후 설계 방향·리스크 정리 → `docs/plan/` 저장 |
-| `/my-split [auto]` | plan → 수직 슬라이스 단위 step별 작업 분해 |
 | `/my-commit` | 원자성 점검 후 Claude attribution 없는 커밋 |
-| `/my-debug [증상]` | 테스트·빌드 실패를 근본 원인 기반으로 해결 |
-| `/my-check` | 타입·린트·테스트·빌드 검증 후 5축 코드 리뷰 |
 | `/my-pr` | PR 제목 추천 |
-| `/my-review [피드백]` | 코드 리뷰 피드백 분류 및 적용 |
-| `/my-iterate [auto]` | 리뷰 피드백 기반 개선 작업 분해 |
 | `/my-retro` | 커밋 + 세션 대화 로그 기반 회고 문서 생성, 재발 신호는 memory 승격 (세션 마무리 뉘앙스에 자동 발동) |
-| `/my-status` | 현재 워크플로우 위치 파악 |
-| `/my-refine [피드백]` | 기획 단계(plan/step) 피드백 반영 |
 | `/my-daily-log [메모]` | 오늘 대화 로그 분석 후 Obsidian 일지 초안 생성 |
 | `/my-memo [대화 내용]` | 대화 기반 웹 리서치 후 Obsidian 인사이트 메모 저장 |
 | `/my-domain-map [주제]` | 도메인 관계도를 조사 → 반증 → 작도 → 아티팩트 발행 (부재·불변식 주장만 검증) |
 | `/my-disk` | 맥 디스크 여유 공간 확인 및 정리 |
+
+## Deprecated 스킬
+
+`skills/<name>/DEPRECATED` 파일이 있는 스킬은 **삭제하지 않고 남겨 두되 설치하지 않습니다.**
+`install.sh`가 `⊘`로 건너뛰고, 이미 걸린 링크는 고아와 같이 보고합니다(`--prune`으로 제거).
+사유와 대체 수단은 각 `DEPRECATED` 파일에 있습니다. 되살리려면 그 파일을 지우고 `install.sh`를
+다시 실행하세요. 새 설치 경로(plugin 등)를 만들 때도 이 마커를 기준으로 걸러야 합니다.
+
+현재 deprecated: `my-init`, `my-interview`, `my-plan`, `my-split`, `my-refine`, `my-iterate`,
+`my-status`, `my-debug`, `my-check`, `my-review` — 최신 모델(Claude Code Opus 5.5, Codex luna/terra)의
+기본 동작·내장 기능(plan 모드, `/code-review`, `/review`, `/goal`)이나 `my-judgment`와 겹칩니다.

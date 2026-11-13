@@ -1,0 +1,3 @@
+2026-11-13 deprecated
+사유: my-check와 같은 'code-reviewer' 미존재 의존이 있다. 피드백 분류·적용은 기본 동작이고, 판단 기록은 my-judgment 판단 로그 → my-retro로 이어진다.
+대체: my-judgment, 내장 /code-review

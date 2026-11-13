@@ -1,0 +1,3 @@
+2026-11-13 deprecated
+사유: npx tsc 하드코딩, 주니어 학습용 step 형식, step마다 정지가 전제다. 최신 모델은 내장 작업 추적으로 분해·진행하고, 장기 작업은 /goal이 체크포인트를 관리한다.
+대체: 내장 plan 모드, goal-maker → /goal

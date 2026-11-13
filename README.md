@@ -83,24 +83,33 @@ SHRIMP_DATA_DIR=/경로 bash mcp-install.sh
 | 커맨드 | 설명 |
 |--------|------|
 | `/goal-maker [목표 또는 초안]` | Claude Code/Codex 내장 `/goal` 대상을 자동 판별해 목표글 작성 또는 기존 글의 적합성 판정 |
-| `/my-init [update]` | 현재 프로젝트 CLAUDE.md에 표준 워크플로우 섹션 추가. `update` 인자 시 CLAUDE.md와 README.md를 최신 버전으로 교체 |
-| `/my-interview [만들 것]` | 요청이 모호할 때 한 번에 한 질문씩 던져 진짜 의도·성공 기준·제약을 확정 → `/my-plan` 입력으로 인계 |
 | `/my-judgment [작업]` | 문제 정의·원인 진단·설계 선택을 AI가 대신 하지 않도록 착수 게이트 → 선택지 제시 → 검증 재료 제공 순으로 대화를 구조화. plan 모드 진입이나 개발 작업 시작 시 **자동 발동**하며, 마무리 시 판단 로그를 `/my-retro`에 넘김 |
-| `/my-plan [기능명]` | 가정 명시 후 기능 아이디어와 설계 방향 정리 (plan 모드) → `docs/plan/` 저장 |
-| `/my-split [auto]` | git branch 생성·전환 후 plan → 주니어 친화적 step별 작업 분해 (수직 슬라이싱·크기 기준). 기본값은 step 완료마다 사용자 확인 대기, `auto` 인자 시 자동 진행 |
 | `/my-commit` | 원자성 점검 후 Claude attribution 없는 커밋 작성 |
-| `/my-debug [증상]` | 테스트·빌드 실패를 재현 → 국소화 → 근본 원인 → 재발 방지 순으로 해결 |
-| `/my-check` | 타입·린트·테스트·빌드 검증 후 5축(정확성·가독성·구조·성능·보안) 코드 리뷰 (분석은 서브에이전트 위임) |
 | `/my-pr [full\|auto]` | 브랜치 변경 분석 후 PR 제목 후보 + body 생성. `full`/`auto` 파라미터 시 GitHub draft PR 자동 생성 + assignee 설정 |
-| `/my-review [피드백]` | 코드 리뷰 피드백 분류 및 적용 (분류 분석은 서브에이전트 위임) → `docs/review/` 저장 |
-| `/my-iterate [auto]` | 리뷰 피드백 기반 개선 작업을 step별로 분해. my-review 이후 사용 |
 | `/my-retro` | 커밋과 **세션 대화 로그**를 근거로 회고 문서 생성 — 각 항목에 근거 표기, 무엇을 보고 썼는지 명시. 워크트리에서 실행해도 원본 체크아웃 `docs/retro/`에 저장하고 기존 파일 포맷을 승계. 재발 신호만 memory로 승격 (전체 서브에이전트 위임). "작업 마무리하자" 같은 세션 종료 뉘앙스에도 자동 발동 |
-| `/my-status` | 현재 워크플로우 위치 파악 — 브랜치·문서 현황·미커밋 변경사항·다음 권장 단계 |
 | `/my-disk` | 맥 디스크 여유 공간 확인 및 안전한 항목 정리 |
 | `/my-daily-log [추가 메모]` | 오늘 Claude Code 대화 로그를 분석하여 Obsidian 일지 초안 생성 |
 | `/my-memo [대화 내용]` | 팀원과 나눈 기술/프로젝트 대화를 기반으로 웹 리서치 후 Obsidian 인사이트 메모 생성. 일지의 Reference 섹션에서 wikilink로 연결 가능 |
 | `/my-domain-map [주제]` | 도메인 엔티티·데이터 흐름·화면 진입점의 관계도를 조사 → 반증 → 작도 → 아티팩트 발행. 부재·불변식 주장만 골라 검증하고, 그리기 전에 노드 목록을 확인받음 |
-| `/my-refine [피드백]` | 기획 단계(plan/step)에 대한 피드백 반영. `my-split` 결과물 수정 시 사용 |
+
+### Deprecated
+
+아래 스킬은 저장소에 남아 있지만 **설치되지 않습니다.** 최신 모델(Claude Code Opus 5.5,
+Codex luna/terra)의 기본 동작·내장 기능이나 `/my-judgment`와 역할이 겹치기 때문입니다.
+`skills/<name>/DEPRECATED` 파일이 표식이며, 지우면 다음 `install.sh` 실행부터 다시 설치됩니다.
+
+| 스킬 | 대체 |
+|------|------|
+| `my-init` | 내장 `/init` — 심던 파이프라인 표가 deprecated 스킬로 구성됨 |
+| `my-interview` | `/my-judgment` 착수 게이트, 모델 기본 확인 질문 |
+| `my-plan` | 내장 plan 모드 + `/my-judgment` |
+| `my-split` | 내장 plan 모드, `/goal-maker` → `/goal` |
+| `my-refine` | plan 모드에서 직접 수정 (`my-split` 전용이었음) |
+| `my-iterate` | 리뷰 피드백 직접 전달 (`my-review` 전용이었음) |
+| `my-status` | `git status` / `git log` (파이프라인 위치 추정 전용이었음) |
+| `my-debug` | `/my-judgment`의 "원인이 미확정인 경우" 절차 |
+| `my-check` | Claude `/code-review`·`/simplify`·`/security-review`, Codex `/review` — 존재하지 않는 `code-reviewer` 에이전트에 의존했음 |
+| `my-review` | `/my-judgment`, 내장 `/code-review` — 같은 `code-reviewer` 의존 |
 
 ## 서브에이전트
 
@@ -128,20 +137,19 @@ Codex에는 대응 개념이 없어 설치되지 않습니다.
 복수 검토는 **독립 → 상호 반박 → 재판정** 순서를 씁니다. 반박 없이 병렬 결과를 합치면
 아무도 남의 판정을 시험하지 않아 점수가 부풀려집니다.
 
-`work-doc-author`와 `/my-plan`의 경계: `/my-plan`은 **내가 결정하려고** 쓰는 글,
+`work-doc-author`와 plan 모드의 경계: 계획은 **내가 결정하려고** 쓰는 글,
 `work-doc-author`는 **결정이 끝난 뒤 남에게 알리려고** 쓰는 글입니다.
 
 ## 표준 작업 플로우
 
 ```
-(/my-interview) → /my-plan → /my-split → (구현 + /my-commit 반복) → /my-check → /my-pr
-   (요청 모호할 때)              ↓              ↓                                    ↓
-                            /my-refine     /my-debug          /my-retro ← /my-iterate ← /my-review
-                            (step 수정)    (실패 시)
+(plan 모드 / /goal-maker → /goal) → (구현 + /my-commit 반복) → (내장 리뷰) → /my-pr → /my-retro
 
 └─ /my-judgment ─────────────── 위 전 구간에 걸쳐 자동 적용 ───────────────┘
    (착수 게이트 · 선택지 제시 · 검증 재료 → 마무리 시 /my-retro로 인계)
 ```
+
+내장 리뷰는 Claude Code `/code-review`·`/simplify`, Codex `/review`입니다.
 
 학습·인사이트 메모는 독립적으로 사용합니다:
 
@@ -149,18 +157,17 @@ Codex에는 대응 개념이 없어 설치되지 않습니다.
 /my-memo [대화 내용] → Obsidian 메모 생성 → /my-daily-log 일지에서 [[wikilink]] 연결
 ```
 
-새 프로젝트 시작 시 `/my-init`, 워크플로우가 바뀌었을 때는 `/my-init update`를 실행하면 됩니다.
-
 ## 문서 저장 구조
 
 skill 실행 시 아래 경로에 자동으로 문서가 생성됩니다.
 
 ```
 docs/
-├── plan/       ← /my-plan 승인 후 저장 (기획 방향)
-├── review/     ← /my-review 완료 후 저장 (피드백 이력)
 └── retro/      ← /my-retro 실행 시 저장 (회고 문서 — 폴더가 없으면 만들기 전에 물어봅니다)
 ```
+
+`docs/plan/`·`docs/review/`는 deprecated된 `my-plan`·`my-review`의 산출물입니다. 기존 파일이
+있으면 `/my-retro`가 통합하고 `/my-pr`이 참고하지만, 새로 만들어지지는 않습니다.
 
 ## 설계 원칙
 
@@ -169,9 +176,8 @@ docs/
 | 패턴 | 적용 skill |
 |------|-----------|
 | 전체 위임 — agent가 모든 작업 수행, 결과만 반환 | `my-retro`, `my-daily-log`, `my-memo` |
-| 부분 위임 — agent가 분석, 메인 세션이 수정 적용 | `my-check`, `my-review`, `my-debug` |
 | 조사·반증만 위임 — agent가 사실 수집과 반증, 메인 세션이 작도·발행 | `my-domain-map` |
-| 메인 세션 직접 실행 — 작업이 가볍거나 plan mode·사용자 대화 필요 | `my-init`, `my-interview`, `my-judgment`, `my-plan`, `my-split`, `my-iterate`, `my-commit`, `my-pr` |
+| 메인 세션 직접 실행 — 작업이 가볍거나 사용자 대화 필요 | `goal-maker`, `my-judgment`, `my-commit`, `my-pr`, `my-disk` |
 
 ## 구조
 
@@ -190,22 +196,15 @@ agents/                        ← Claude Code 전용, ~/.claude/agents/로 심�
 
 skills/
 ├── goal-maker/SKILL.md
-├── my-init/SKILL.md
-├── my-interview/SKILL.md
 ├── my-judgment/SKILL.md
-├── my-plan/SKILL.md
-├── my-split/SKILL.md
 ├── my-commit/SKILL.md
-├── my-debug/SKILL.md
-├── my-check/SKILL.md
 ├── my-pr/SKILL.md
-├── my-review/SKILL.md
-├── my-iterate/SKILL.md
 ├── my-retro/SKILL.md
-├── my-refine/SKILL.md
-├── my-status/SKILL.md
 ├── my-disk/SKILL.md
 ├── my-daily-log/SKILL.md
 ├── my-memo/SKILL.md
-└── my-domain-map/SKILL.md
+├── my-domain-map/SKILL.md
+└── my-{init,interview,plan,split,refine,iterate,status,debug,check,review}/
+    ├── SKILL.md
+    └── DEPRECATED             ← 있으면 install.sh가 설치하지 않음 (사유·대체 수단 기록)
 ```

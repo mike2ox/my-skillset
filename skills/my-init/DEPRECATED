@@ -1,0 +1,3 @@
+2026-11-13 deprecated
+사유: 이 스킬이 CLAUDE.md에 심는 파이프라인 표(interview→plan→split→check→review→iterate)의 단계 대부분이 deprecated되어 표 자체가 낡은 안내가 된다.
+대체: 내장 /init

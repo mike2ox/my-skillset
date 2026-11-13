@@ -1,0 +1,3 @@
+2026-11-13 deprecated
+사유: 가정 명시·리스크·안 할 것 정리는 내장 plan 모드가 기본으로 수행하고, 판단 주체를 사용자로 유지하는 규칙은 my-judgment가 맡는다. 남는 고유 기능은 docs/plan 저장뿐이다.
+대체: 내장 plan 모드 + my-judgment

@@ -68,6 +68,9 @@ mkdir -p ~/.claude/skills ~/.codex/skills
 - 실제 디렉토리 → 경고만 하고 보존 (`⚠`)
 - 없음 → 생성 (`✓`)
 
+단, `skills/<name>/DEPRECATED` 파일이 있는 스킬은 위 판정 전에 건너뜁니다(`⊘`). 이미 걸린
+링크가 있으면 고아와 함께 보고되고, `--prune`을 줘야 제거됩니다.
+
 저장소 이름이 바뀌거나 스킬이 이동하면 기존 링크가 깨지는데, `⟳` 분기가 그것을
 자동으로 복구합니다. 단순히 `[ -L ]`로 건너뛰면 깨진 링크를 영영 고칠 수 없습니다.
 
@@ -143,8 +146,10 @@ done
 ### 저장소와 목록이 일치해야 합니다
 
 ```bash
-diff <(ls skills/) <(ls ~/.claude/skills/ | grep -E "^(my-|goal-maker$)") && echo "claude 일치"
-diff <(ls skills/) <(ls ~/.codex/skills/  | grep -E "^(my-|goal-maker$)") && echo "codex 일치"
+# deprecated(skills/<name>/DEPRECATED 있음)를 뺀 목록과 비교
+active() { for d in skills/*/; do [ -e "$d/DEPRECATED" ] || basename "$d"; done; }
+diff <(active) <(ls ~/.claude/skills/ | grep -E "^(my-|goal-maker$)") && echo "claude 일치"
+diff <(active) <(ls ~/.codex/skills/  | grep -E "^(my-|goal-maker$)") && echo "codex 일치"
 diff <(ls agents/) <(ls ~/.claude/agents/) && echo "agents 일치"
 ```
 
