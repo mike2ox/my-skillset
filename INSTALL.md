@@ -14,7 +14,7 @@
 bash install.sh
 ```
 
-아래 2~4단계를 전부 수행합니다. 재실행해도 안전합니다. 개별 단계를 직접 확인하고
+아래 2~5단계를 전부 수행합니다. 재실행해도 안전합니다. 개별 단계를 직접 확인하고
 싶을 때만 아래 절차를 따르세요.
 
 ```bash
@@ -99,7 +99,21 @@ shrimp의 `DATA_DIR` 기본값은 `/Volumes/860QVO/.shrimp-data`입니다. Claud
 SHRIMP_DATA_DIR=/경로 bash mcp-install.sh
 ```
 
-### 4. 알림음 훅 설치
+### 4. rtk 훅 설치
+
+[rtk](https://www.rtk-ai.app/)는 셸 명령 출력을 압축해 토큰을 아낍니다. `brew install rtk`로
+설치돼 있으면 `install.sh`가 타깃별로 설정합니다. 없으면 건너뜁니다.
+
+```bash
+rtk init -g --auto-patch   # Claude — settings.json PreToolUse에 rtk hook claude
+rtk init -g --codex        # Codex  — hooks.json PreToolUse에 rtk hook codex
+```
+
+**Codex에 `rtk hook claude`를 걸면 안 됩니다.** 응답에 `permissionDecision`이 빠져 Codex가
+재작성을 무시하므로, 훅은 걸려 있는데 명령은 그대로 실행됩니다. `install.sh`는 이렇게 잘못
+걸린 항목을 찾으면 제거합니다.
+
+### 5. 알림음 훅 설치
 
 설정 파일을 통째로 덮지 않고 `hooks`에만 병합하므로, `model`·`statusLine`·기존 훅
 (Codex의 `rtk` PreToolUse 등)은 그대로 유지됩니다.
@@ -127,7 +141,7 @@ bash settings/install-codex-hooks.sh   # Codex  — Stop 1종
 > Codex는 `hooks.json`을 해시로 신뢰합니다. 파일을 수정한 뒤 첫 실행에서 재신뢰를
 > 요구하면 승인하세요.
 
-### 5. 재시작
+### 6. 재시작
 
 skills를 로드하려면 해당 제품(Claude Code / Codex)을 재시작하세요.
 
@@ -163,9 +177,10 @@ claude mcp list; codex mcp list
 jq '.hooks | keys' ~/.claude/settings.json   # Stop, Notification, StopFailure
 jq '.hooks | keys' ~/.codex/hooks.json       # Stop (+ 기존 PreToolUse 등)
 
-# 사용자의 기존 훅이 보존됐는지
-jq -e '.hooks.PreToolUse[]?.hooks[]? | select(.command == "rtk hook claude")' \
-  ~/.codex/hooks.json >/dev/null && echo "rtk 훅 보존됨"
+# rtk 훅 — 타깃마다 처리기가 다르다
+rtk init --show | grep Hook                                  # rtk hook claude
+jq -e '.hooks.PreToolUse[]?.hooks[]? | select(.command == "rtk hook codex")' \
+  ~/.codex/hooks.json >/dev/null && echo "codex rtk 훅 정상"
 ```
 
 ## 제거

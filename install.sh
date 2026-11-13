@@ -22,8 +22,8 @@ usage() {
   -h, --help                   이 도움말
 
 타깃별 설치 범위:
-  claude  ~/.claude/skills · ~/.claude/agents · MCP 4종 · 알림음 훅 3종(Stop/Notification/StopFailure)
-  codex   ~/.codex/skills  · MCP 4종 · 알림음 훅 1종(Stop)
+  claude  ~/.claude/skills · ~/.claude/agents · MCP 4종 · rtk 훅 · 알림음 훅 3종(Stop/Notification/StopFailure)
+  codex   ~/.codex/skills  · MCP 4종 · rtk 훅 · 알림음 훅 1종(Stop)
 
   Codex에는 Notification·StopFailure 훅 이벤트가 없어 Stop만 설치된다.
   서브에이전트는 Claude Code 전용이라 Codex에는 설치되지 않는다.
@@ -251,6 +251,28 @@ for t in $TARGETS; do
       || echo "    ⚠ 실패 — 수동 실행: bash mcp-install.sh --target $t"
   else
     echo "    ⚠ $t CLI 없음 — 건너뜀. 설치 후: bash mcp-install.sh --target $t"
+  fi
+
+  # rtk는 셸 명령 출력을 압축해 토큰을 아낀다. 타깃마다 훅 처리기가 다르다 —
+  # Codex에 `rtk hook claude`를 걸면 permissionDecision이 빠져 재작성이 무시된다.
+  echo "  rtk 훅"
+  if command -v rtk >/dev/null 2>&1; then
+    case "$t" in
+      claude) rtk init -g --auto-patch >/dev/null \
+                && echo "    ✓ rtk hook claude" \
+                || echo "    ⚠ 실패 — 수동 실행: rtk init -g --auto-patch" ;;
+      codex)  codex_hooks="$(target_home codex)/hooks.json"
+              if [ -f "$codex_hooks" ] && jq -e '.hooks.PreToolUse[]?.hooks[]? | select(.command == "rtk hook claude")' "$codex_hooks" >/dev/null 2>&1; then
+                jq '.hooks.PreToolUse |= map(select(any(.hooks[]; .command == "rtk hook claude") | not))' \
+                  "$codex_hooks" > "$codex_hooks.tmp" && mv "$codex_hooks.tmp" "$codex_hooks"
+                echo "    ⟳ 잘못 걸린 rtk hook claude 제거"
+              fi
+              rtk init -g --codex >/dev/null \
+                && echo "    ✓ rtk hook codex" \
+                || echo "    ⚠ 실패 — 수동 실행: rtk init -g --codex" ;;
+    esac
+  else
+    echo "    ⚠ rtk 없음 — 건너뜀. 설치 후 재실행: brew install rtk"
   fi
 
   echo "  알림음 훅"

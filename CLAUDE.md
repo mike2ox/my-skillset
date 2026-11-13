@@ -25,7 +25,7 @@ bash install.sh --target codex   # 한쪽만
 ```
 
 스크립트가 하는 일: 타깃별 skills 디렉토리 생성 → 스킬 심링크 연결 → **에이전트 심링크
-연결(Claude 타깃만)** → MCP 4종 등록 → 알림음 훅 병합. 깨졌거나 옛 경로를 가리키는 링크는
+연결(Claude 타깃만)** → MCP 4종 등록 → rtk 훅 설정(rtk 설치 시) → 알림음 훅 병합. 깨졌거나 옛 경로를 가리키는 링크는
 자동 재연결되고, 전부 멱등이라 재실행해도 안전합니다.
 
 **Step 2** — 고아 심링크가 보고되면 사용자에게 목록을 보여주고 확인을 받으세요.
@@ -59,6 +59,8 @@ jq '.hooks | keys' ~/.codex/hooks.json       # Stop (+ 기존 PreToolUse 보존)
   `~/.codex/hooks.json`에는 사용자의 `rtk` PreToolUse 훅이 들어 있습니다. 반드시
   `settings/install-sounds.sh` / `settings/install-codex-hooks.sh`를 쓰세요 — 백업을 남기고
   `# my-cc-config:sound` 마커가 붙은 훅만 교체합니다.
+- **rtk 훅은 타깃마다 처리기가 다릅니다** — Claude는 `rtk hook claude`, Codex는 `rtk hook codex`.
+  Codex에 claude용을 걸면 훅은 돌지만 재작성이 무시됩니다. 직접 쓰지 말고 `rtk init -g [--codex]`를 쓰세요.
 - **Codex에는 Stop 알림음만 설치됩니다.** Codex의 훅 이벤트 집합에 `Notification`과
   `StopFailure`가 없습니다. 이것은 버그가 아니라 제품 제약입니다.
 - **shrimp `DATA_DIR`은 Claude와 Codex가 같은 값을 써야 합니다**(기본
