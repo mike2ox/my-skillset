@@ -23,7 +23,7 @@ usage() {
 
 타깃별 설치 범위:
   claude  ~/.claude/skills · ~/.claude/agents · MCP 2종 · rtk 훅 · 알림음 훅 3종(Stop/Notification/StopFailure)
-  codex   ~/.codex/skills  · MCP 2종 · rtk 훅 · 알림음 훅 1종(Stop)
+  codex   ~/.codex/skills  · MCP 2종 · rtk 훅 · 알림음 훅 1종(Stop) · 훅 신뢰 등록
 
   Codex에는 Notification·StopFailure 훅 이벤트가 없어 Stop만 설치된다.
   서브에이전트는 Claude Code 전용이라 Codex에는 설치되지 않는다.
@@ -282,6 +282,18 @@ for t in $TARGETS; do
     codex)  bash "$REPO_DIR/settings/install-codex-hooks.sh" \
               || echo "    ⚠ 실패 — 수동 실행: bash settings/install-codex-hooks.sh" ;;
   esac
+
+  # Codex는 신뢰되지 않은 훅을 조용히 건너뛴다. 신뢰는 hooks.json 내용에 묶이므로
+  # rtk·알림음 훅을 모두 건 뒤 마지막에 등록해야 한다.
+  if [ "$t" = "codex" ]; then
+    echo "  훅 신뢰 등록"
+    if target_cli codex; then
+      bash "$REPO_DIR/settings/trust-codex-hooks.sh" \
+        || echo "    ⚠ 실패 — 수동 실행: bash settings/trust-codex-hooks.sh"
+    else
+      echo "    ⚠ codex CLI 없음 — 건너뜀. 설치 후: bash settings/trust-codex-hooks.sh"
+    fi
+  fi
 done
 
 echo ""

@@ -58,7 +58,9 @@ bash settings/install-codex-hooks.sh --uninstall   # Codex 제거
 
 두 스크립트 모두 설정 파일을 통째로 덮지 않고 `hooks`에만 병합하며, 자신이 넣은 훅은
 `# my-cc-config:sound` 마커로 식별합니다. 사용자의 다른 훅(예: Codex의 `rtk` PreToolUse)은
-보존됩니다. Codex는 `hooks.json`을 해시로 신뢰하므로 수정 후 재신뢰를 요구할 수 있습니다.
+보존됩니다. Codex는 신뢰 등록되지 않은 훅을 조용히 건너뛰므로, `install.sh`가 마지막에
+`settings/trust-codex-hooks.sh`로 이 저장소가 건 훅을 신뢰 등록합니다. `hooks.json`을 고친 뒤에는
+이 스크립트를 다시 실행하세요.
 
 ## MCP 서버
 

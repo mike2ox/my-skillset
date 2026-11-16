@@ -20,9 +20,9 @@
 # 어렵습니다. codex exec에 --dangerously-bypass-hook-trust를 주고 실행했을 때
 # async가 있으면 훅이 돌지 않고, 빼면 `hook: Stop`이 찍히는 것으로 확인했습니다.
 #
-# 설치했다고 바로 도는 것도 아닙니다. Codex는 훅을 `파일:이벤트:인덱스` 단위로
-# 해시 신뢰하며, 대화형 세션에서 한 번 승인해야 config.toml의 [hooks.state]에
-# 등록됩니다. 승인 전까지는 조용히 건너뜁니다.
+# 설치했다고 바로 도는 것도 아닙니다. Codex는 훅을 `파일:이벤트:그룹:인덱스` 단위로
+# 해시 신뢰하며, config.toml의 [hooks.state]에 등록되기 전까지는 조용히 건너뜁니다.
+# 등록은 settings/trust-codex-hooks.sh가 합니다(install.sh가 마지막에 호출).
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -91,4 +91,4 @@ trap - EXIT
 
 echo "  ✓ Codex 알림음 훅 $ACTION 완료 — $SETTINGS"
 echo "    백업: $BACKUP"
-echo "    Codex는 hooks.json을 해시로 신뢰합니다. 다음 실행 시 재신뢰를 요구하면 승인하세요."
+echo "    Codex는 hooks.json을 해시로 신뢰합니다. 단독 실행했다면: bash settings/trust-codex-hooks.sh"

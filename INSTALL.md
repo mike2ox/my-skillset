@@ -138,10 +138,25 @@ bash settings/install-codex-hooks.sh   # Codex  — Stop 1종
 > Aurora는 `ToneLibrary.framework` 내부 파일이라 macOS 업데이트로 경로가 바뀔 수 있습니다.
 > 그래서 훅에 폴백이 들어 있어, 파일이 사라지면 조용히 무음이 되지 않고 Glass로 대체 재생됩니다.
 
-> Codex는 `hooks.json`을 해시로 신뢰합니다. 파일을 수정한 뒤 첫 실행에서 재신뢰를
-> 요구하면 승인하세요.
+### 6. Codex 훅 신뢰 등록
 
-### 6. 재시작
+Codex는 훅을 `파일:이벤트:그룹:인덱스` 키와 내용 해시로 신뢰하며, `~/.codex/config.toml`의
+`[hooks.state]`에 등록되지 않은 훅은 **에러 없이 건너뜁니다.** rtk 훅도 알림음 훅도 마찬가지라,
+설치만 하고 승인 창을 놓치면 둘 다 조용히 꺼져 있습니다. `install.sh`가 마지막에 등록합니다.
+
+```bash
+bash settings/trust-codex-hooks.sh   # 단독 실행
+```
+
+해시는 직접 계산하지 않고 Codex app-server의 `hooks/list`가 돌려준 값을 `config/value/write`로
+씁니다. 이 저장소가 건 훅(`rtk hook codex`, `# my-cc-config:sound` 마커)만 신뢰하고, 다른 훅은
+건드리지 않습니다. `python3`가 필요합니다.
+
+`hooks.json`의 내용이나 순서가 바뀌면(예: `rtk init`이 항목 재배치) 신뢰가 풀리므로 다시
+실행하세요. cmux 안의 `codex`는 `--dangerously-bypass-hook-trust`로 실행되어 신뢰와 상관없이
+훅이 돕니다. 그래서 거기서 훅이 돈다는 것은 신뢰 등록의 근거가 되지 않습니다.
+
+### 7. 재시작
 
 skills를 로드하려면 해당 제품(Claude Code / Codex)을 재시작하세요.
 

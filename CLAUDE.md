@@ -25,7 +25,8 @@ bash install.sh --target codex   # 한쪽만
 ```
 
 스크립트가 하는 일: 타깃별 skills 디렉토리 생성 → 스킬 심링크 연결 → **에이전트 심링크
-연결(Claude 타깃만)** → MCP 2종 등록 → rtk 훅 설정(rtk 설치 시) → 알림음 훅 병합. 깨졌거나 옛 경로를 가리키는 링크는
+연결(Claude 타깃만)** → MCP 2종 등록 → rtk 훅 설정(rtk 설치 시) → 알림음 훅 병합 →
+**Codex 훅 신뢰 등록(Codex 타깃만)**. 깨졌거나 옛 경로를 가리키는 링크는
 자동 재연결되고, 전부 멱등이라 재실행해도 안전합니다.
 
 **Step 2** — 고아 심링크가 보고되면 사용자에게 목록을 보여주고 확인을 받으세요.
@@ -51,6 +52,7 @@ diff <(ls agents/) <(ls ~/.claude/agents/) && echo "agents 일치"
 
 jq '.hooks | keys' ~/.claude/settings.json   # Stop, Notification, StopFailure
 jq '.hooks | keys' ~/.codex/hooks.json       # Stop (+ 기존 PreToolUse 보존)
+bash settings/trust-codex-hooks.sh           # 전부 ✓ (이미 신뢰됨/신뢰 등록)
 ```
 
 ### 주의사항
@@ -61,6 +63,9 @@ jq '.hooks | keys' ~/.codex/hooks.json       # Stop (+ 기존 PreToolUse 보존)
   `# my-cc-config:sound` 마커가 붙은 훅만 교체합니다.
 - **rtk 훅은 타깃마다 처리기가 다릅니다** — Claude는 `rtk hook claude`, Codex는 `rtk hook codex`.
   Codex에 claude용을 걸면 훅은 돌지만 재작성이 무시됩니다. 직접 쓰지 말고 `rtk init -g [--codex]`를 쓰세요.
+- **Codex 훅은 신뢰 등록 전까지 조용히 꺼져 있습니다.** `config.toml`의 `[hooks.state]`를 손으로
+  쓰지 말고 `settings/trust-codex-hooks.sh`를 쓰세요 — 해시를 Codex에게 받아 씁니다. cmux 안의
+  `codex`는 신뢰 검사를 건너뛰므로, 거기서 훅이 돈다고 등록된 것이 아닙니다.
 - **Codex에는 Stop 알림음만 설치됩니다.** Codex의 훅 이벤트 집합에 `Notification`과
   `StopFailure`가 없습니다. 이것은 버그가 아니라 제품 제약입니다.
 - **shrimp `DATA_DIR`은 Claude와 Codex가 같은 값을 써야 합니다**(기본
