@@ -7,6 +7,11 @@
 - macOS
 - Claude Code CLI 또는 OpenAI Codex CLI (둘 다 있으면 양쪽에 설치됩니다)
 - `jq` (`brew install jq`)
+- `python3` (Codex 훅 신뢰 등록용), `rtk` (선택 — 없으면 rtk 훅을 건너뜀)
+
+> **[settings](https://github.com/mike2ox/settings) 저장소와 같이 쓴다면 그쪽 8단계(dotfiles `cp`) 다음에
+> 실행하세요.** settings 는 모델·상태줄 같은 기본 설정만 갖고, 훅·RTK.md·MCP·Codex 훅 신뢰는 이
+> 저장소가 담당합니다. dotfiles 를 나중에 다시 `cp`하면 이것들이 지워지므로 `install.sh`를 다시 실행하세요.
 
 ## 가장 빠른 방법
 
@@ -14,7 +19,7 @@
 bash install.sh
 ```
 
-아래 2~5단계를 전부 수행합니다. 재실행해도 안전합니다. 개별 단계를 직접 확인하고
+아래 2~6단계를 전부 수행합니다. 재실행해도 안전합니다. 개별 단계를 직접 확인하고
 싶을 때만 아래 절차를 따르세요.
 
 ```bash
